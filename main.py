@@ -8,13 +8,15 @@ from datetime import datetime
 from discord.ext import commands
 
 my_secret = os.environ['Token']
-extensions = ["cogs.template","cogs.point"]
+my_ow = os.environ['Owner']
+extensions = ["cogs.template","cogs.NFT360"]
+
 
 class Bot(commands.Bot):
     def __init__(self):
         super().__init__(
-            owner_ids={},
-            command_prefix="!",
+            owner_ids={my_ow},
+            command_prefix="-",
             intents=discord.Intents.all(),
             help_command=None,
             case_insensitive=True,
@@ -32,33 +34,37 @@ class Bot(commands.Bot):
 
 bot = Bot()
 
-# class MyView(discord.ui.View):
-#   @discord.ui.select( # the decorator that lets you specify the properties of the select menu
-#     placeholder = "Choose a Flavor!", # the placeholder text that will be displayed if nothing is selected
-#     min_values = 1, # the minimum number of values that must be selected by the users
-#     max_values = 1, # the maximum number of values that can be selected by the users
-#     options = [ # the list of options from which users can choose, a required field
-#       discord.SelectOption(
-#         label="template",
-#         description="Pick this if you like vanilla!"
-#       ),
-#       discord.SelectOption(
-#         label="unload",
-#         description="Pick this if you like chocolate!"
-#       ),
-#       discord.SelectOption(
-#         label="Strawberry",
-#         description="Pick this if you like strawberry!"
-#       )
-#     ]
-#   )
-#   async def select_callback(self, select, interaction): # the function called when the user is done selecting options
-#     await interaction.response.send_message(f"Awesome! I like {select.values[0]} too!")
+# # class MyView(discord.ui.View):
+# #   @discord.ui.select( # the decorator that lets you specify the properties of the select menu
+# #     placeholder = "Choose a Flavor!", # the placeholder text that will be displayed if nothing is selected
+# #     min_values = 1, # the minimum number of values that must be selected by the users
+# #     max_values = 1, # the maximum number of values that can be selected by the users
+# #     options = [ # the list of options from which users can choose, a required field
+# #       discord.SelectOption(
+# #         label="template",
+# #         description="Pick this if you like vanilla!"
+# #       ),
+# #       discord.SelectOption(
+# #         label="unload",
+# #         description="Pick this if you like chocolate!"
+# #       ),
+# #       discord.SelectOption(
+# #         label="Strawberry",
+# #         description="Pick this if you like strawberry!"
+# #       )
+# #     ]
+# #   )
+# #   async def select_callback(self, select, interaction): # the function called when the user is done selecting options
+# #     await interaction.response.send_message(f"Awesome! I like {select.values[0]} too!")
 
-# @bot.slash_command(name="flavor", description = "test")
-# async def flavor(ctx, wallet:discord.Option(str, description="test2")):
-#   await ctx.respond("Choose a flavor!", view=MyView())
+# # @bot.slash_command(name="flavor", description = "test")
+# # async def flavor(ctx, wallet:discord.Option(str, description="test2")):
+# #   await ctx.respond("Choose a flavor!", view=MyView())
 
+
+@bot.slash_command(name="__start_here", description = "set channel for admin")
+async def __start_here(ctx):
+  await ctx.respond(str(ctx.guild.id) + " " + str(ctx.channel.id))
 
 for extension in extensions:
   print(extension)
