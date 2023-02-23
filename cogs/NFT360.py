@@ -2,6 +2,7 @@ import os
 import discord
 import pymongo
 import pymongo.errors
+from replit import db
 from discord.commands import OptionChoice
 from discord.ext import commands
 from discord import ApplicationContext as actx
@@ -50,9 +51,14 @@ class NFT360(discord.ext.commands.Cog):
 
   @admin.command()
   async def set_channel(self, actx):
-    id = actx.guild.id
-    view = choose_channel(id)
-    await actx.respond("Select channels:", view=view, ephemeral=True)
+    channel_id = db["channel_id"]
+    ch_id = actx.channel.id
+    if ch_id == channel_id:
+      id = actx.guild.id
+      view = choose_channel(id)
+      await actx.respond("Select channels:", view=view, ephemeral=True)
+    else:
+      await actx.respond(f"Please use command at <#{channel_id}>", ephemeral=True)
     
   @admin.command()
   # @default_permissions(manage_channels=True)

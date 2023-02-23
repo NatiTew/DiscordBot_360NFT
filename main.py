@@ -1,16 +1,22 @@
 import os
 import sys
 import discord
+from replit import db
 from os import system
 from time import sleep
 from traceback import print_exc
 from datetime import datetime
 from discord.ext import commands
+from discord import default_permissions
 
 my_secret = os.environ['Token']
 my_ow = os.environ['Owner']
 extensions = ["cogs.template","cogs.NFT360"]
 
+def showall():
+  keys = db.keys()
+  for arr in keys:
+    print(arr)
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -30,41 +36,72 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         print(f"We have logged in as {self.user}")
+        showall()
       
 
 bot = Bot()
 
-# # class MyView(discord.ui.View):
-# #   @discord.ui.select( # the decorator that lets you specify the properties of the select menu
-# #     placeholder = "Choose a Flavor!", # the placeholder text that will be displayed if nothing is selected
-# #     min_values = 1, # the minimum number of values that must be selected by the users
-# #     max_values = 1, # the maximum number of values that can be selected by the users
-# #     options = [ # the list of options from which users can choose, a required field
-# #       discord.SelectOption(
-# #         label="template",
-# #         description="Pick this if you like vanilla!"
-# #       ),
-# #       discord.SelectOption(
-# #         label="unload",
-# #         description="Pick this if you like chocolate!"
-# #       ),
-# #       discord.SelectOption(
-# #         label="Strawberry",
-# #         description="Pick this if you like strawberry!"
-# #       )
-# #     ]
-# #   )
-# #   async def select_callback(self, select, interaction): # the function called when the user is done selecting options
-# #     await interaction.response.send_message(f"Awesome! I like {select.values[0]} too!")
+def ch_statusAdmin():
+  keys = db.keys()
+  if "status_admin" in keys:
+    value = db["status_admin"]
+    if value == True:
+      return True
+    else:
+      return False
+  else:
+    db["status_admin"] = False
+    return False
 
-# # @bot.slash_command(name="flavor", description = "test")
-# # async def flavor(ctx, wallet:discord.Option(str, description="test2")):
-# #   await ctx.respond("Choose a flavor!", view=MyView())
+@bot.slash_command(name="__chang_to_here", description = "change channel admin")
+@default_permissions(administrator=True)
+async def __chang_to_here(ctx):
+  if ch_statusAdmin() == True:
+    discord_id = str(ctx.guild.id)
+    channel_id = str(ctx.channel.id)
+  
+    await ctx.respond(f"Change target to Discord id: {discord_id}\nChannel Admin: <#{channel_id}>")
+    db["status_admin"] = True
+    db["discord_id"] = discord_id
+    db["channel_id"] = channel_id
+  else:
+    await ctx.respond("Can't use, channel admin not set", ephemeral=True)
+  
 
-
-@bot.slash_command(name="__start_here", description = "set channel for admin")
+@bot.slash_command(name="__start_here", description = "set channel admin")
+@default_permissions(administrator=True)
 async def __start_here(ctx):
-  await ctx.respond(str(ctx.guild.id) + " " + str(ctx.channel.id))
+  if ch_statusAdmin() == False:
+    discord_id = str(ctx.guild.id)
+    channel_id = str(ctx.channel.id)
+  
+    await ctx.respond(f"Start Bot was use in Discord id: {discord_id}\nChannel Admin: <#{channel_id}>")
+    db["status_admin"] = True
+    db["discord_id"] = discord_id
+    db["channel_id"] = channel_id
+  else:
+    channel_id = db["channel_id"]
+    await ctx.respond(f"Can't use, channel admin is on\nChannel Admin: <#{channel_id}>", ephemeral=True)
+
+@bot.slash_command(name="__status", description = "Show status Admin channel")
+@default_permissions(administrator=True)
+async def ___status(ctx):
+  discord_id = db["discord_id"]
+  channel_id = db["channel_id"]
+  if ch_statusAdmin() == True:
+    await ctx.respond(f"Discord ID: {str(discord_id)}, Channel is: <#{str(channel_id)}> \n Status is ON" , ephemeral=True)
+  else:
+    await ctx.respond("Status is OFF" , ephemeral=True)
+
+@bot.slash_command(name="__reset_admin", description = "reset channel admin")
+@default_permissions(administrator=True)
+async def __reset_admin(ctx):
+  await ctx.respond("Data was reset")
+  db["status_admin"] = False
+  db["discord_id"] = ""
+  db["channel_id"] = ""
+
+
 
 for extension in extensions:
   print(extension)
@@ -73,8 +110,6 @@ for extension in extensions:
   except:
     print(f'Failed to load extension {extension[0]}.', file=sys.stderr)
     print_exc()
-
-
 
 try:
     bot.loop.run_until_complete(bot.run(my_secret))
