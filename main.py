@@ -19,27 +19,57 @@ def showall():
     print(arr)
 
 class Bot(commands.Bot):
-    def __init__(self):
-        super().__init__(
-            owner_ids={my_ow},
-            command_prefix="-",
-            intents=discord.Intents.all(),
-            help_command=None,
-            case_insensitive=True,
-            start_time=datetime.utcnow(),
-            allowed_mentions=discord.AllowedMentions(
-                users=True,
-                replied_user=True,
-                roles=True,
-                everyone=True
-            ))
+  def __init__(self):
+    super().__init__(
+        owner_ids={my_ow},
+        command_prefix=",",
+        intents=discord.Intents.all(),
+        help_command=None,
+        case_insensitive=True,
+        start_time=datetime.utcnow(),
+        allowed_mentions=discord.AllowedMentions(
+            users=True,
+            replied_user=True,
+            roles=True,
+            everyone=True
+        ))
 
-    async def on_ready(self):
-        print(f"We have logged in as {self.user}")
-        showall()
+  async def on_ready(self):
+    print(f"We have logged in as {self.user}")
+    showall()
+    channel_id = db["channel_id"]
+    if channel_id != "":
+      await bot.get_channel(int(channel_id)).send("I'm comeback")
       
 
 bot = Bot()
+
+def loadNFT():
+  for extension in extensions:
+    print(extension)
+    try:
+      bot.load_extension(extension)
+    except:
+      print(f'Failed to load extension {extension[0]}.', file=sys.stderr)
+      print_exc()
+
+def unloadNFT():
+  for extension in extensions:
+    print(extension)
+    try:
+      bot.unload_extension(extension)
+    except:
+      print(f'Failed to load extension {extension[0]}.', file=sys.stderr)
+      print_exc()
+def reloadNFT():
+  for extension in extensions:
+    print(extension)
+    try:
+      bot.unload_extension(extension)
+      bot.load_extension(extension)
+    except:
+      print(f'Failed to load extension {extension[0]}.', file=sys.stderr)
+      print_exc()
 
 def ch_statusAdmin():
   keys = db.keys()
@@ -101,8 +131,6 @@ async def __reset_admin(ctx):
   db["discord_id"] = ""
   db["channel_id"] = ""
 
-
-
 for extension in extensions:
   print(extension)
   try:
@@ -110,6 +138,8 @@ for extension in extensions:
   except:
     print(f'Failed to load extension {extension[0]}.', file=sys.stderr)
     print_exc()
+
+
 
 try:
     bot.loop.run_until_complete(bot.run(my_secret))
